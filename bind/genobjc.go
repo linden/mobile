@@ -188,11 +188,29 @@ func (g *ObjcGen) GenH() error {
 		g.Printf("\n")
 	}
 
+	enumerables := make(map[string]map[string]string)
+
 	// const
 	// TODO: prefix with k?, or use a class method?
 	for _, obj := range g.constants {
 		if _, ok := obj.Type().(*types.Basic); !ok || !g.isSupported(obj.Type()) {
-			g.Printf("// skipped const %s with unsupported type: %s\n\n", obj.Name(), obj.Type())
+			if obj.Exported() && g.isSupported(obj.Type().Underlying()) {
+				source := (obj.Type().(*types.Named)).Obj().Name()
+
+				if trimmed := strings.TrimPrefix(obj.Name(), source); trimmed != obj.Name() {
+					enumerable, ok := enumerables[source]
+
+					if !ok {
+						enumerable = make(map[string]string)
+					}
+
+					enumerable[trimmed] = obj.Val().ExactString()
+					enumerables[source] = enumerable
+				}
+			} else {
+				g.Printf("// skipped const %s with unsupported type: %s\n\n", obj.Name(), obj.Type())
+			}
+
 			continue
 		}
 		g.objcdoc(g.docs[obj.Name()].Doc())
@@ -205,6 +223,16 @@ func (g *ObjcGen) GenH() error {
 	}
 	if len(g.constants) > 0 {
 		g.Printf("\n")
+	}
+
+	for name, enumerable := range enumerables {
+		g.Printf("typedef NS_ENUM(NSUInteger, %s) {\n", name)
+
+		for key, value := range enumerable {
+			g.Printf("\t%s = %s,\n", key, value)
+		}
+
+		g.Printf("}\n\n")
 	}
 
 	// var

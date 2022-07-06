@@ -626,3 +626,10 @@ type Int32Constructed struct{}
 func NewInt32Constructed(i int32) *Int32Constructed {
 	return nil
 }
+
+type Color byte
+
+const (
+	ColorRed Color = iota
+	ColorBlue
+)
