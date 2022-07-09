@@ -633,3 +633,10 @@ const (
 	ColorRed Color = iota
 	ColorBlue
 )
+
+type Name string
+
+const (
+	NameJim Name = "Jim"
+	NameTim Name = "Tim"
+)

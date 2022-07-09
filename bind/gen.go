@@ -86,11 +86,12 @@ type Generator struct {
 	err    ErrorList
 
 	// fields set by init.
-	pkgName   string
-	pkgPrefix string
-	funcs     []*types.Func
-	constants []*types.Const
-	vars      []*types.Var
+	pkgName     string
+	pkgPrefix   string
+	funcs       []*types.Func
+	constants   []*types.Const
+	enumerables map[string]map[string]*types.Const
+	vars        []*types.Var
 
 	interfaces []interfaceInfo
 	structs    []structInfo
@@ -129,6 +130,7 @@ func (g *Generator) Init() {
 		g.pkgName = g.Pkg.Name()
 	}
 	g.pkgPrefix = pkgPrefix(g.Pkg)
+	g.enumerables = make(map[string]map[string]*types.Const)
 
 	if g.Pkg != nil {
 		g.parseDocs()
@@ -159,7 +161,24 @@ func (g *Generator) Init() {
 					g.otherNames = append(g.otherNames, obj)
 				}
 			case *types.Const:
-				g.constants = append(g.constants, obj)
+				// LINDEN-TAG magic
+				if !g.isSupported(obj.Type()) && g.isSupported(obj.Type().Underlying()) {
+					source := (obj.Type().(*types.Named)).Obj().Name()
+
+					if trimmed := strings.TrimPrefix(obj.Name(), source); trimmed != obj.Name() {
+						enumerable, ok := g.enumerables[source]
+
+						if !ok {
+							enumerable = make(map[string]*types.Const)
+						}
+
+						enumerable[trimmed] = obj
+						g.enumerables[source] = enumerable
+					}
+				} else {
+					g.constants = append(g.constants, obj)
+				}
+
 			case *types.Var:
 				g.vars = append(g.vars, obj)
 			default:
