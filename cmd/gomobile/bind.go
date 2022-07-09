@@ -131,6 +131,8 @@ func runBind(cmd *command) error {
 		if !xcodeAvailable() {
 			return fmt.Errorf("-target=%q requires Xcode", buildTarget)
 		}
+
+		// LINDEN-TAG
 		return goAppleBind(gobind, pkgs, targets)
 	default:
 		return fmt.Errorf(`invalid -target=%q`, buildTarget)

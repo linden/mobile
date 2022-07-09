@@ -57,8 +57,11 @@ func goAppleBind(gobind string, pkgs []*packages.Package, targets []targetInfo) 
 		gobindDir := filepath.Join(outSrcDir, "gobind")
 
 		// Run gobind once per platform to generate the bindings
+		// LINDEN-TAG: gobind should be `golang.org/x/mobile/cmd/gobind` not the path (?)
 		cmd := exec.Command(
-			gobind,
+			"go",
+			"run",
+			"golang.org/x/mobile/cmd/gobind",
 			"-lang=go,objc",
 			"-outdir="+outDir,
 		)

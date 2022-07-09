@@ -443,7 +443,8 @@ func (g *goGen) genRead(toVar, fromVar string, typ types.Type, mode varMode) {
 			g.Printf("if %s_ref != nil {\n", toVar)
 			g.Printf("	if %s < 0 { // go object \n", fromVar)
 			g.Printf("  	 %s = %s_ref.Get().(%s%s)\n", toVar, toVar, g.pkgName(oPkg), o.Name())
-			if hasProxy {
+			// LINDEN-TAG: monkey patch
+			if hasProxy && t.Obj().Name() != "SpendingCondition" {
 				g.Printf("	} else { // foreign object \n")
 				if isWrapper {
 					var clsName string

@@ -228,7 +228,7 @@ func (g *ObjcGen) GenH() error {
 			g.Printf("\t%s = %s,\n", key, value.Val().ExactString())
 		}
 
-		g.Printf("}\n\n")
+		g.Printf("};\n\n")
 	}
 
 	// var

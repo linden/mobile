@@ -17,6 +17,7 @@ type ifaceSummary struct {
 	implementable bool
 }
 
+// LINDEN-TAG this is faulty :(
 func makeIfaceSummary(iface *types.Interface) ifaceSummary {
 	summary := ifaceSummary{
 		iface:         iface,
